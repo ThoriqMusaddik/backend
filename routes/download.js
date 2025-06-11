@@ -3,6 +3,8 @@ const router = express.Router();
 const Download = require('../models/downloads');
 const path = require('path');
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 // Endpoint untuk mencatat download
 router.post('/', async (req, res) => {
   console.log('POST /api/downloads', req.body); // Tambahkan log ini
