@@ -38,7 +38,7 @@ sequelize.sync()
   });
 
 // Tambahkan ini sebelum app.listen
-Download.sync({ alter: true }) // alter: true akan menyesuaikan tabel dengan model
+Download.sync({ alter: false }) // alter: true akan menyesuaikan tabel dengan model
   .then(() => {
     console.log('Tabel Download sudah disesuaikan dengan model.');
   })
