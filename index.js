@@ -12,36 +12,37 @@ const Download = require('./models/downloads');
 
 const app = express();
 
-// Middleware - harus sebelum routing
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Static folder
+// Static folder (optional, bisa disesuaikan path upload/download kamu)
 app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
 app.use('/downloads', express.static(path.join(__dirname, 'public/downloads')));
 
 // Routing
 app.use('/api/files', fileRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/convert', convertRoutes); // <== Pindahkan ke sini, setelah middleware
+app.use('/api/convert', convertRoutes);
 app.use('/api/downloads', downloadRoutes);
 
-// Start server & connect DB
+// Sync model Download terlebih dahulu
+Download.sync({ alter: true })
+  .then(() => {
+    console.log('✅ Tabel Download sudah disesuaikan dengan model.');
+  })
+  .catch((err) => {
+    console.error('❌ Gagal sync tabel Download:', err);
+  });
+
+// Connect DB & Start Server
 sequelize.sync()
   .then(() => {
-    app.listen(5000, () => {
-      console.log('✅ Server berjalan di http://localhost:5000');
+    const PORT = process.env.PORT || 5000;  // <-- FIX UTAMA DISINI
+    app.listen(PORT, () => {
+      console.log(`✅ Server berjalan di http://localhost:${PORT}`);
     });
   })
   .catch((error) => {
     console.error('❌ Gagal koneksi ke database:', error);
-  });
-
-// Tambahkan ini sebelum app.listen
-Download.sync({ alter: true }) // alter: true akan menyesuaikan tabel dengan model
-  .then(() => {
-    console.log('Tabel Download sudah disesuaikan dengan model.');
-  })
-  .catch((err) => {
-    console.error('Gagal sync tabel Download:', err);
   });
