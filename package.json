@@ -16,41 +16,20 @@
     "office-to-pdf": "^4.0.0",
     "open": "^10.1.2",
     "pdf-parse": "^1.1.1",
-    "pdf2docx": "^0.0.0",
     "pdf2pic": "^3.1.4",
     "pdfkit": "^0.17.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.3",
-    "react-scripts": "5.0.1",
     "sequelize": "^6.37.7",
-    "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2",
-    "nodemon": "^3.1.10"
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }
