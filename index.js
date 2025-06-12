@@ -12,13 +12,16 @@ const Download = require('./models/downloads');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middleware CORS supaya bisa connect ke frontend Vercel
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*',
+  credentials: true
+}));
 app.use(bodyParser.json());
 
-// Static folder (optional, bisa disesuaikan path upload/download kamu)
-app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
-app.use('/downloads', express.static(path.join(__dirname, 'public/downloads')));
+// Static folder (pastikan path di server ada)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
 // Routing
 app.use('/api/files', fileRoutes);
@@ -38,9 +41,9 @@ Download.sync({ alter: true })
 // Connect DB & Start Server
 sequelize.sync()
   .then(() => {
-    const PORT = process.env.PORT || 5000;  // <-- FIX UTAMA DISINI
+    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`✅ Server berjalan di http://localhost:${PORT}`);
+      console.log(`✅ Server berjalan di PORT: ${PORT}`);
     });
   })
   .catch((error) => {
