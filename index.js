@@ -9,7 +9,6 @@ const fileRoutes = require('./routes/file');
 const userRoutes = require('./routes/user');
 const convertRoutes = require('./routes/convert');
 const downloadRoutes = require('./routes/download');
-const Download = require('./models/downloads');
 
 const app = express();
 
@@ -39,7 +38,7 @@ if (!fs.existsSync(downloadPath)) {
 app.use('/uploads', express.static(uploadPath));
 app.use('/downloads', express.static(downloadPath));
 
-// Test route root (biar ga "Cannot GET /")
+// Test route root
 app.get('/', (req, res) => {
   res.send('✅ Backend PDF Kita is running!');
 });
@@ -50,23 +49,19 @@ app.use('/api/users', userRoutes);
 app.use('/api/convert', convertRoutes);
 app.use('/api/downloads', downloadRoutes);
 
-// Sync model Download terlebih dahulu
-Download.sync({ alter: true })
+// Test koneksi database + sync
+sequelize.authenticate()
   .then(() => {
-    console.log('✅ Tabel Download sudah disesuaikan dengan model.');
+    console.log('✅ BERHASIL: Database terkoneksi!');
+    return sequelize.sync({ alter: true });
   })
-  .catch((err) => {
-    console.error('❌ Gagal sync tabel Download:', err);
-  });
-
-// Connect DB & Start Server
-sequelize.sync()
   .then(() => {
+    console.log('✅ Database sync berhasil.');
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`✅ Server berjalan di PORT: ${PORT}`);
     });
   })
-  .catch((error) => {
-    console.error('❌ Gagal koneksi ke database:', error);
+  .catch((err) => {
+    console.error('❌ Gagal koneksi ke database:', err);
   });
