@@ -12,13 +12,13 @@ const downloadRoutes = require('./routes/download');
 
 const app = express();
 
-/**
- * ✅ Konfigurasi CORS fix:
- * Menghindari error origin mismatch (CORS strict)
- */
+// ✅ BASE_URL diambil dari env (penting buat fileUrl absolut)
+const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+
+// ✅ Konfigurasi CORS fix:
 const allowedOrigins = [
-  'https://frontend-theta-beryl-55.vercel.app', // frontend vercel kamu
-  'http://localhost:3000'  // biar aman kalau testing local dev
+  'https://frontend-theta-beryl-55.vercel.app',
+  'http://localhost:3000'
 ];
 
 app.use(cors({
@@ -36,9 +36,7 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-/**
- * ✅ Pastikan folder uploads & downloads ada (untuk penyimpanan file lokal di Railway)
- */
+// ✅ Pastikan folder uploads & downloads ada
 const uploadPath = path.join(__dirname, 'uploads');
 const downloadPath = path.join(__dirname, 'downloads');
 
@@ -54,9 +52,15 @@ if (!fs.existsSync(downloadPath)) {
 app.use('/uploads', express.static(uploadPath));
 app.use('/downloads', express.static(downloadPath));
 
-// Test route root (biar gampang cek Railway online)
+// Test route root
 app.get('/', (req, res) => {
   res.send('✅ Backend PDF Kita is running!');
+});
+
+// ✅ Inject BASE_URL agar bisa dipakai di semua routes
+app.use((req, res, next) => {
+  req.baseUrlAbsolute = BASE_URL;
+  next();
 });
 
 // Routing utama API

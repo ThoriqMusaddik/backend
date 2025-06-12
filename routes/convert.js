@@ -10,6 +10,14 @@ const router = express.Router();
 require('dotenv').config();
 const CLOUDMERSIVE_API_KEY = process.env.CLOUDMERSIVE_API_KEY;
 
+// ✅ Ambil BASE_URL dari env
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
+// ✅ Direktori output konversi semua kita set sama
+const outputDir = path.join(__dirname, '../downloads');
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+// ✅ WORD to PDF
 router.post('/word-to-pdf', async (req, res) => {
   const { fileName } = req.body;
   const uploadsDir = path.join(__dirname, '../uploads');
@@ -35,14 +43,11 @@ router.post('/word-to-pdf', async (req, res) => {
       }
     );
 
-    // Simpan hasil PDF ke server
-    const outputDir = path.join(__dirname, '../public/downloads');
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
     const outputFileName = fileName.replace(/\.[^/.]+$/, '') + '.pdf';
     const outputPath = path.join(outputDir, outputFileName);
     fs.writeFileSync(outputPath, response.data);
 
-    const fileUrl = `${req.protocol}://${req.get('host')}/downloads/${outputFileName}`;
+    const fileUrl = `${BASE_URL}/downloads/${outputFileName}`;
     res.json({ fileUrl });
   } catch (err) {
     console.error('Error Cloudmersive:', err.message);
@@ -50,7 +55,7 @@ router.post('/word-to-pdf', async (req, res) => {
   }
 });
 
-// Endpoint JPG to PDF
+// ✅ JPG to PDF
 router.post('/jpg-to-pdf', async (req, res) => {
   const { fileName } = req.body;
   const uploadsDir = path.join(__dirname, '../uploads');
@@ -58,11 +63,6 @@ router.post('/jpg-to-pdf', async (req, res) => {
 
   if (!fs.existsSync(inputPath)) {
     return res.status(404).json({ error: 'File tidak ditemukan di server' });
-  }
-
-  const outputDir = path.join(__dirname, '../public/downloads');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
   }
 
   const outputFileName = fileName.replace(/\.(jpg|jpeg)$/i, '.pdf');
@@ -79,7 +79,7 @@ router.post('/jpg-to-pdf', async (req, res) => {
   doc.end();
 
   stream.on('finish', () => {
-    const fileUrl = `${req.protocol}://${req.get('host')}/downloads/${outputFileName}`;
+    const fileUrl = `${BASE_URL}/downloads/${outputFileName}`;
     res.json({ fileUrl });
   });
 
@@ -89,7 +89,7 @@ router.post('/jpg-to-pdf', async (req, res) => {
   });
 });
 
-
+// ✅ EXCEL to PDF
 router.post('/excel-to-pdf', async (req, res) => {
   const { fileName } = req.body;
   const uploadsDir = path.join(__dirname, '../uploads');
@@ -115,13 +115,11 @@ router.post('/excel-to-pdf', async (req, res) => {
       }
     );
 
-    const outputDir = path.join(__dirname, '../public/downloads');
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
     const outputFileName = fileName.replace(/\.[^/.]+$/, '') + '.pdf';
     const outputPath = path.join(outputDir, outputFileName);
     fs.writeFileSync(outputPath, response.data);
 
-    const fileUrl = `${req.protocol}://${req.get('host')}/downloads/${outputFileName}`;
+    const fileUrl = `${BASE_URL}/downloads/${outputFileName}`;
     res.json({ fileUrl });
   } catch (err) {
     console.error('Error Cloudmersive Excel:', err.message);
