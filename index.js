@@ -12,9 +12,23 @@ const downloadRoutes = require('./routes/download');
 
 const app = express();
 
-// Middleware CORS supaya bisa connect ke frontend Vercel
+/**
+ * ✅ Konfigurasi CORS fix:
+ * Menghindari error origin mismatch (CORS strict)
+ */
+const allowedOrigins = [
+  'https://frontend-theta-beryl-55.vercel.app', // frontend vercel kamu
+  'http://localhost:3000'  // biar aman kalau testing local dev
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS Not Allowed: ' + origin));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -22,7 +36,9 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// Pastikan folder uploads & downloads ada
+/**
+ * ✅ Pastikan folder uploads & downloads ada (untuk penyimpanan file lokal di Railway)
+ */
 const uploadPath = path.join(__dirname, 'uploads');
 const downloadPath = path.join(__dirname, 'downloads');
 
@@ -34,29 +50,29 @@ if (!fs.existsSync(downloadPath)) {
   fs.mkdirSync(downloadPath);
 }
 
-// Static folder (pastikan path di server ada)
+// Static file serving
 app.use('/uploads', express.static(uploadPath));
 app.use('/downloads', express.static(downloadPath));
 
-// Test route root
+// Test route root (biar gampang cek Railway online)
 app.get('/', (req, res) => {
   res.send('✅ Backend PDF Kita is running!');
 });
 
-// Routing
+// Routing utama API
 app.use('/api/files', fileRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/convert', convertRoutes);
 app.use('/api/downloads', downloadRoutes);
 
-// Test koneksi database + sync
+// Koneksi database & sync
 sequelize.authenticate()
   .then(() => {
-    console.log('✅ BERHASIL: Database terkoneksi!');
+    console.log('✅ Database terkoneksi!');
     return sequelize.sync({ alter: true });
   })
   .then(() => {
-    console.log('✅ Database sync berhasil.');
+    console.log('✅ Database sync sukses!');
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`✅ Server berjalan di PORT: ${PORT}`);
